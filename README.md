@@ -1,6 +1,6 @@
 1. Create the certificate
    ```bash
-   bash script.sh
+   bash create-selfsigned-ssl.sh
    ```
 
 2. Check the certificate
