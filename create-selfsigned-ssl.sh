@@ -68,30 +68,29 @@ CN = $COMMON_NAME
 [ v3_req ]
 keyUsage = digitalSignature, keyEncipherment
 extendedKeyUsage = serverAuth
-subjectAltName = DNS:$COMMON_NAME
 EOF
 
 # Add DNS SAN entries
+SAN_LIST=""
 if [[ ! -z "$SAN_DNS" ]]; then
   IFS=',' read -r -a DNS_ARRAY <<< "$SAN_DNS"
   for dns in "${DNS_ARRAY[@]}"; do
-    echo "subjectAltName = DNS:$dns" >> openssl.cnf
+    SAN_LIST="$SAN_LIST,DNS:$dns"
   done
 fi
 
 # Add IP SAN entries (make sure they are in the same `subjectAltName` line)
-SAN_IP_LIST=""
 if [[ ! -z "$SAN_IP" ]]; then
   IFS=',' read -r -a IP_ARRAY <<< "$SAN_IP"
   for ip in "${IP_ARRAY[@]}"; do
-    SAN_IP_LIST="$SAN_IP_LIST,IP:$ip"
+    SAN_LIST="$SAN_LIST,IP:$ip"
   done
 fi
 
 # Remove the leading comma and add to the configuration file
-if [[ ! -z "$SAN_IP_LIST" ]]; then
-  SAN_IP_LIST="${SAN_IP_LIST:1}"
-  echo "subjectAltName = $SAN_IP_LIST" >> openssl.cnf
+if [[ ! -z "$SAN_LIST" ]]; then
+  SAN_LIST="${SAN_LIST:1}"
+  echo "subjectAltName = $SAN_LIST" >> openssl.cnf
 fi
 
 # Generate the certificate
